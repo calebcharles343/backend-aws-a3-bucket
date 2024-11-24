@@ -1,0 +1,74 @@
+/*///////////////////////////////////*/
+/*Download a File*/
+/*///////////////////////////////////*/
+
+const { GetObjectCommand } = require("@aws-sdk/client-s3");
+const fs = require("fs");
+const path = require("path");
+
+async function downloadFile(bucketName, key, downloadPath) {
+  const params = {
+    Bucket: bucketName,
+    Key: key,
+  };
+
+  try {
+    const data = await s3.send(new GetObjectCommand(params));
+    const fileStream = fs.createWriteStream(path.join(downloadPath, key));
+    data.Body.pipe(fileStream);
+
+    fileStream.on("finish", () => {
+      console.log("File downloaded successfully");
+    });
+  } catch (err) {
+    console.error("Error downloading file:", err);
+  }
+}
+
+// Usage
+downloadFile("my-bucket-name", "my-folder/my-file.txt", "./downloads");
+
+/*///////////////////////////////////*/
+/*List Files in a Buckete*/
+/*///////////////////////////////////*/
+
+const { ListObjectsV2Command } = require("@aws-sdk/client-s3");
+
+async function listFiles(bucketName) {
+  const params = {
+    Bucket: bucketName,
+  };
+
+  try {
+    const data = await s3.send(new ListObjectsV2Command(params));
+    console.log("Files in bucket:", data.Contents);
+  } catch (err) {
+    console.error("Error listing files:", err);
+  }
+}
+
+// Usage
+listFiles("my-bucket-name");
+
+/*///////////////////////////////////*/
+/*Delete a File*/
+/*///////////////////////////////////*/
+const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
+
+async function deleteFile(bucketName, key) {
+  const params = {
+    Bucket: bucketName,
+    Key: key,
+  };
+
+  try {
+    const data = await s3.send(new DeleteObjectCommand(params));
+    console.log("File deleted successfully:", data);
+  } catch (err) {
+    console.error("Error deleting file:", err);
+  }
+}
+
+// Usage
+deleteFile("my-bucket-name", "my-folder/my-file.txt");
+
